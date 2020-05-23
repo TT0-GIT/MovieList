@@ -1,0 +1,284 @@
+* {
+   box-sizing: border-box;
+   font-family: Arial, Helvetica, sans-serif;
+}
+
+html body {
+    background-color: #141414;
+    color: #fff;
+}
+
+header {
+    height:50px;
+    top:10px;
+    left:10px;
+    display:flex;
+    align-items: flex-end;
+}
+
+header img,header a {
+    margin-right: 60px;
+}
+
+header a {
+    padding-bottom: 5px;
+    text-decoration: none;
+    color:#fff;
+}
+
+header a:hover {
+    border-bottom: 3px solid red;
+    transition: width .35s ease-in-out;
+    cursor: pointer;
+}
+
+#likeListButton {
+    display:none;
+}
+
+#pagination {
+    display:flex;
+    justify-content:space-around;
+    padding: 10px;
+
+}
+
+#pagination button {
+    color: #fff;
+    font-size: 24px;
+    background-color: #141414;
+    border: 0px;
+}
+
+#pagination button:hover {
+    color: #bbb;
+    font-size: 24px;
+    border: 0px;
+}
+
+#movieList {
+    display: flex;
+    flex-wrap: wrap;
+ }
+
+.movie {
+    position: relative;
+    overflow:hidden;
+    width: 20%;
+    padding:10px;
+ }
+
+ [id*="item-"] {
+     width:100%;
+     height:auto;
+ }
+
+ .poster p {
+     text-align: center;
+ }
+
+ .movie:hover .top {
+     cursor: pointer;
+     margin:0;
+     top: 10px;
+     left:10px;
+     width:100%;
+     transition: 1s;
+}
+  
+.top {
+    position: absolute;
+    margin:0;
+    top: 10px;
+    left: -100px;
+    width:100px;
+    padding:10px;
+    font-size: large;
+    color:red;
+    background-color: rgba(0,0,0,0.75);
+    transition: 1s;
+ }
+
+.top:hover {
+    color:white;
+    cursor: pointer;
+  }
+
+.modal {
+    display: none;
+    position:fixed;
+    z-index:1;
+    padding-top: 120px; 
+    top:0;
+    left:0;
+    width: 100%; 
+    height: 100%; 
+    background-color:rgba(0,0,0,0.5);
+}
+
+#container {
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: auto;
+    width: 80%;
+    box-shadow: 0 4px 8px 0 rgba(255, 255, 255, 0.2), 0 6px 20px 0 rgba(255, 255, 255, 0.19);
+}
+
+.content {
+    color: seashell ;
+    height:100%;
+    width:100%;
+    top:0px;
+    bottom: 0px;
+    left:0px;
+    right:0px;
+    padding: 40px 20px;
+    display: inline-flex;
+    background-color:rgba(0,0,0,0.7);
+}
+
+.close {
+    text-align: center;
+    color:#fff;
+  }
+  
+  .close:hover {
+    color:#bbb;
+    cursor: pointer;
+  }
+
+
+.content>div {
+    height:100%;
+    top:0px;
+    bottom: 0px;
+    left:0px;
+    right:0px;
+    padding:20px 40px;
+
+}
+
+#genres {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#genres>div {
+    padding:5px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+#overview {
+    line-height: 1.4;
+    text-align: justify;
+    color:#ddd;
+}
+
+#production {
+    max-height:200px;
+    display:flex;
+    flex-wrap: wrap;
+    background-color:#ddd;
+    color:#141414;
+    overflow-y: scroll;
+
+}
+
+#production img, #production span {
+    margin-right: 10px;
+    padding: 20px
+}
+
+#likeListHeader {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.likePoster {
+    width:20%;
+    padding:10px;
+}
+
+#config {
+    color: #fff;
+}
+#config:hover {
+    color:#bbb;
+    cursor: pointer;
+}
+
+#likeListContent {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#likeListContent p {
+    text-align: center;
+}
+
+#likeListTitle {
+    display:none;
+    position:fixed;
+    z-index:1;
+    padding-top: 80px; 
+    top:0;
+    left:0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.5);
+    color:white;
+    overflow: scroll;
+}
+
+#closeLikeListTitle {
+    float: right;
+    padding-top: 10px;
+    padding-right: 40px;
+}
+
+#closeLikeListTitle:hover {
+    cursor: pointer;
+}
+
+#likeListTitleContent {
+    position:absolute;
+    top:150px;
+    padding-top: 50px;
+    clear:right;
+    width:70%;
+    left:15%;
+}
+
+#likeListTitleContent p {
+    text-align: center;
+    font-size: medium;
+    border: 1px white solid;
+    border-radius: 15px;
+    padding:10px;
+}
+
+html,body,#mainPage,#likeList {
+    transition: all .6s cubic-bezier(.5, .2, .2, 1.1);
+    -webkit-transition: all .6s cubic-bezier(.5, .2, .2, 1.1);
+}
+
+#mainPage,#likeList {
+    position:absolute;
+}
+
+#mainPage {
+    left:0;
+}
+
+#likeList {
+    width:100%;
+    left: 200%;
+}
+
+#showLikeList:target #mainPage, #showLikeList:target #likeList {
+    transform: translateX(-200%);
+    -webkit-transform: translateX(-200%);
+}
