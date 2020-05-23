@@ -1,27 +1,10 @@
 const apiKey = `767a17491866d99d6e9e4da2bd8f8507`;
 const baseUrl = `https://api.themoviedb.org`;
-let movieContainer = document.getElementById("movieList");
 let page = 1;
-let prevBtn = document.getElementById("prev");
-let nextBtn = document.getElementById("next");
-let poster = document.getElementsByClassName("poster")
-let likeIt = document.getElementsByClassName("top")
-let likeListContent = document.getElementById("likeListContent");
 
-getList = () => {
-    let path = '/3/movie/popular'
-    let language = 'en-US'
-    let request = new XMLHttpRequest();
-    request.open(`GET`,`${baseUrl}${path}?api_key=${apiKey}&language=${language}&page=${page}`);
-    request.onload = () => {
-       if (request.readyState == 4 && request.status == 200) {
-           let myList = JSON.parse(request.responseText).results;
-           renderList(myList)
-       }
-    };
-    request.send();
-};
-
+/* 1. movie list main page */
+// htmlString: structure for movielist
+let movieContainer = document.getElementById("movieList");
 let htmlString = ``;
 for (let i = 0; i < 20; i++) {
     htmlString += `<div class= "movie">
@@ -35,18 +18,30 @@ for (let i = 0; i < 20; i++) {
 }
 movieContainer.insertAdjacentHTML('beforeend',htmlString)
 
+//render movie list function
 renderList = (data) => {
-     for (let i = 0; i < data.length; i++) {
-         document.getElementById(`item-${i}`).src = `https://image.tmdb.org/t/p/w500${data[i].poster_path}`;
-         document.getElementById(`item-${i}`).alt = `${data[i].title}`;
-         document.getElementsByClassName(`posterTitle`)[i].innerHTML = `${data[i].title}` ;
-         document.getElementsByClassName(`posterReleaseDate`)[i].innerHTML = `${data[i].release_date}`;
-
-     }
+    for (let i = 0; i < data.results.length; i++) {
+        document.getElementById("pageText").innerHTML = `Showing Page <i id = "pageInfo" style="text-decoration: underline;">${data.page}</i> / <i>${data.total_pages}</i> | Items <i>20</i> / <i>${data.total_results}</i>`
+        document.getElementById(`item-${i}`).src = `https://image.tmdb.org/t/p/w500${data.results[i].poster_path}`;
+        document.getElementById(`item-${i}`).alt = `${data.results[i].title}`;
+        document.getElementsByClassName(`posterTitle`)[i].innerHTML = `${data.results[i].title}` ;
+        document.getElementsByClassName(`posterReleaseDate`)[i].innerHTML = `${data.results[i].release_date}`;
+    }
 }
 
+// call popular movie API, fetch movie list -- using fetch API
+getList = () => {
+    let path = '/3/movie/popular'
+    let language = 'en-US'
+    fetch(`${baseUrl}${path}?api_key=${apiKey}&language=${language}&page=${page}`)
+       .then((response) => response.json())
+       .then((movielist) => renderList(movielist))
+}
 getList();
 
+// nextButton, prevButton
+let prevBtn = document.getElementById("prev");
+let nextBtn = document.getElementById("next");
 nextBtn.addEventListener("click", () => {
     page += 1;
     prevBtn.innerHTML = `&lt;&lt;`;
@@ -54,13 +49,9 @@ nextBtn.addEventListener("click", () => {
     if (page == 500) {
         nextBtn.innerHTML = ``;
         nextBtn.disable = true;
-        document.getElementById("pageInfo").innerHTML = `${page}`;
         getList();
-
     } else {
-        document.getElementById("pageInfo").innerHTML = `${page}`;
         getList();
-
     }
 } ) 
 
@@ -69,66 +60,53 @@ prevBtn.addEventListener("click", () => {
     if (page == 1) {
         prevBtn.innerHTML = ``;
         prevBtn.disabled = true;
-        document.getElementById("pageInfo").innerHTML = `${page}`;
         getList();     
     } else {
-        document.getElementById("pageInfo").innerHTML = `${page}`;
         getList();
-
-
-
     }
 } ) 
 
-getDetail = (movieId) => {
-    let path = '/3/movie/'
-    let language = 'en-US'
-    let request = new XMLHttpRequest();
-    request.open(`GET`,`${baseUrl}${path}${movieId}?api_key=${apiKey}&language=${language}`);
-    request.onload = () => {
-       if (request.readyState == 4 && request.status == 200) {
-           let myDetail = JSON.parse(request.responseText);
-           renderDetail(myDetail);
-       }
-    };
-    request.send();
-};
+/* 2. click on poster for each movie's detail info */
+// call genres get movie list API for 19 different movie genres then fetch in movie detail genres matched 
+// with different background color (same genres has same background color) --- using Async ... await call
+let colorArr = ['blue','lightseagreen','lightpink','darkgoldenrod','purple','black',
+                'red','goldenrod','violet','gold','darkgreen','orange','darkmagenta',
+                'pink','silver','lightskyblue','darkred','grey','brown'] // movie genres background color
 
-let colorArr = ['blue','lightseagreen','lightpink','darkgoldenrod','purple','black','red','goldenrod',
-'violet','gold','darkgreen','orange','darkmagenta','pink','silver','lightskyblue',
-'darkred','grey','brown']
-let genresColor = {};
-getGenres = (i) => {
+async function getGenres(i) {
     let path = '/3/genre/movie/list'
     let language = 'en-US'
-    let request = new XMLHttpRequest();
-    request.open(`GET`,`${baseUrl}${path}?api_key=${apiKey}&language=${language}`);
-    request.onload = () => {
-       if (request.readyState == 4 && request.status == 200) {
-           let genresList = JSON.parse(request.responseText).genres;
-           let name = genresList[i].name.replace(" ", ""); 
-           genresColor = {name:name, backColor: colorArr[i]}
-           document.querySelectorAll(`.${genresColor.name}`).forEach(n => n.style.backgroundColor=`${genresColor.backColor}`)
-       }
-    };
-    request.send();
-};
+    const URL = `${baseUrl}${path}?api_key=${apiKey}&language=${language}`;
+    const fetchResult = fetch(URL)
+    const response = await fetchResult;
+    if (response.ok) {
+        const jsondata = await response.json();
+        let genresList = jsondata.genres;
+        let name = genresList[i].name.replace(" ", ""); 
+        let genresColor = {name:name, backColor: colorArr[i]} // match color with genres
+        document.querySelectorAll(`.${genresColor.name}`).forEach(n => n.style.backgroundColor=`${genresColor.backColor}`)
+    } else {
+        throw Error(response.statusText);
+    }
+}
 
+// render movie detail function
 renderDetail = (data) => {
-    document.getElementById('container').style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${data.backdrop_path})`
+    document.getElementById('container').style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${data.backdrop_path})` 
+   
     document.getElementById('detailPoster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
     document.getElementById('detailPoster').alt = `"${data.title}"`;
-
+    
     document.getElementById('movieTitle').innerHTML = `${data.title} (${data.release_date.slice(0,4)})`;
     
+    // genres and matched background color
     let genres = document.getElementById('genres')
     let genresString = ``;
     for (let i = 0; i < data.genres.length; i++) {
         genresString += `<div class= "${data.genres[i].name.replace(" ","")}">${data.genres[i].name}</div>`;
-
     }
     genres.insertAdjacentHTML('beforeend',genresString);
-    for (let i = 0; i<19; i++) {
+    for (let i = 0; i<colorArr.length; i++) {
         getGenres(i);
     }
     
@@ -144,15 +122,34 @@ renderDetail = (data) => {
     }
     production.insertAdjacentHTML('beforeend',pdtString)
 
-
     document.getElementsByClassName("close")[0].innerHTML = "CLOSE";
 }
 
-let closeFunc = () => {
+// movie detail modal close function (click close or anywhere outside modal)
+closeFunc = () => {
     document.getElementById('Detail').style.display = `none`;
     movieContainer.style.filter = ``;
 }
 
+window.onclick = function(event) {
+    let modal = document.getElementById("Detail");
+    if (event.target == modal) {
+        modal.style.display = `none`;
+        movieContainer.style.filter = ``;
+
+    }
+};
+
+// call get detail API, fetch movie detail  
+getDetail = (movieId) => {
+    let path = '/3/movie/'
+    let language = 'en-US'
+    fetch(`${baseUrl}${path}${movieId}?api_key=${apiKey}&language=${language}`)
+       .then((response) => response.json())
+       .then(myDetail => renderDetail(myDetail));
+};
+
+// call get popular API to get movie id for clicked movie
 getId = (i) => {
     let path = '/3/movie/popular'
     let language = 'en-US'
@@ -167,15 +164,8 @@ getId = (i) => {
     request.send();
 }
 
-let modal = document.getElementById("Detail");
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = `none`;
-        movieContainer.style.filter = ``;
-
-    }
-};
-
+// fetch movie detail modal when click specific movie poster
+let poster = document.getElementsByClassName("poster")
 for (let i = 0; i<poster.length; i++) {
     poster[i].addEventListener("click", () => {
         movieContainer.style.filter = `blur(8px)`;
@@ -186,6 +176,42 @@ for (let i = 0; i<poster.length; i++) {
     })
 }
 
+/* 3. click "like it" to get like list and render like list */
+// function for present like List menu in Navbar 
+renderLikeButton = (data) => {
+    let likeListButton = document.getElementById("likeListButton");
+    document.getElementsByClassName("badge")[0].innerHTML = data.length;
+    document.getElementById("likeListButton").style.display = `block` 
+}
+
+// function for render like list poster
+renderLikePoster = (data) => {
+    document.getElementById("likeListHeading").innerHTML = `Liked List`;
+    document.getElementById("config").innerHTML = `CONFIG`;
+    let likeString = ``;
+    for (let i = 0; i <data.length; i++) {
+        likeString += `<div class = "likePoster">
+                          <img src=https://image.tmdb.org/t/p/w500${data[i].poster_path} alt="${data[i].title}" style="height:auto;width:100%;">
+                          <p><b>${data[i].title}</b></p>
+                          <p>${data[i].release_date}</p>
+                       </div>`
+    }
+    likeListContent.insertAdjacentHTML('beforeend',likeString)
+}
+
+// function for render like list title
+renderLikeTitle = (data) => {
+    let likeListTitleContent = document.getElementById("likeListTitleContent");
+    let likeTitleString = ``;
+    for (let i = 0; i < data.length; i++) {
+        likeTitleString += `<div id = "divlike-${i}" ondrop="drop(event)" ondragover="allowDrop(event)">
+                                 <p id = "like-${i}" draggable="true" ondragstart="drag(event)">${data[i].title}</p>
+                            </div>`
+    }
+    likeListTitleContent.insertAdjacentHTML('beforeend',likeTitleString)
+}
+
+// call get popular API to get like list info (title poster and release date)
 let likeArr = [];
 let likeSet = new Set();
 getLike = (i) => {
@@ -201,14 +227,14 @@ getLike = (i) => {
                likeObj = {title:myList[i].title, poster_path:myList[i].poster_path, release_date: myList[i].release_date}
                likeArr.push(likeObj);
 
-               // likeListNav
-               renderLikeButton();    
+               // present like List menu in Navbar
+               renderLikeButton(likeArr);    
                
-               //likeList--poster
+               // poster of like list
                likeListContent.querySelectorAll('*').forEach(n => n.remove());
                renderLikePoster(likeArr);
 
-               //config
+               // title of like list after click config
                likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
                renderLikeTitle(likeArr);
             }
@@ -217,83 +243,58 @@ getLike = (i) => {
     request.send();
 }
 
+// present like List menu in Navbar load like list page when click "like it" 
+let likeIt = document.getElementsByClassName("top")
 for (let i = 0; i<likeIt.length; i++) {
     likeIt[i].addEventListener("click", () => {
         getLike(i);
     })
 }
 
-let likeListButton = document.getElementById("likeListButton");
-let likeList = document.getElementById("likeList")
+// function for click config to show like list title
 let likeListTitle = document.getElementById("likeListTitle");
 configFunc = () => {
     likeListTitle.style.display = 'block';
 }
 
+// function for close like list title page
 closeTitlefunc = () => {
     likeListTitle.style.display = 'none';
 }
- 
-renderLikeButton = () => {
-    document.getElementsByClassName("badge")[0].innerHTML = likeArr.length;
-    document.getElementById("likeListButton").style.display = `block` 
-}
 
-renderLikePoster = (data) => {
-    let likeString = ``;
-    for (let i = 0; i <data.length; i++) {
-        likeString += `<div class = "likePoster">
-                          <img src=https://image.tmdb.org/t/p/w500${data[i].poster_path} alt="${data[i].title}" style="height:auto;width:100%;">
-                          <p><b>${data[i].title}</b></p>
-                          <p>${data[i].release_date}</p>
-                       </div>`
-    }
-    likeListContent.insertAdjacentHTML('beforeend',likeString)
-}
-
-renderLikeTitle = (data) => {
-    let likeListTitleContent = document.getElementById("likeListTitleContent");
-    let likeTitleString = ``;
-    for (let i = 0; i < data.length; i++) {
-        likeTitleString += `<div id = "divlike-${i}" ondrop="drop(event)" ondragover="allowDrop(event)">
-                                 <p id = "like-${i}" draggable="true" ondragstart="drag(event)">${data[i].title}</p>
-                            </div>`
-    }
-    likeListTitleContent.insertAdjacentHTML('beforeend',likeTitleString)
-}
-
-const reorderArray = (oldIndex, newIndex, originalArray) => {
-    const movedItem = originalArray.find((item, index) => index == oldIndex);
-    const remainingItems = originalArray.filter((item, index) => index !== oldIndex);
+/* 4. order like list title by drag and drop, also show in like list poster*/
+// function of reorder an array
+newArray = (oldIndex, newIndex, oldArray) => {
+    let movedItem = oldArray.find((item, index) => index == oldIndex);
+    let remainingItems = oldArray.filter((item, index) => index !== oldIndex);
   
-    const reorderedItems = [
+    let newItems = [
         ...remainingItems.slice(0, newIndex),
         movedItem,
         ...remainingItems.slice(newIndex)
     ];
   
-    return reorderedItems;
+    return newItems;
 }
 
-function allowDrop(ev) {
+// allowDrop func
+allowDrop = (ev) => {
     ev.preventDefault();
-  }
+}
 
-  
-  function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
-      
-  }
+// drag func  
+drag = (ev) => {
+    ev.dataTransfer.setData("text", ev.target.id);   
+}
 
-  let oldIndex;
-  let newIndex;
-  function drop(ev) {
+// drop func
+drop = (ev) => {
     ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
+    let data = ev.dataTransfer.getData("text");
     ev.target.appendChild(document.getElementById(data));
-    oldIndex = Number(data.slice(-1));
-    newIndex = Number(ev.target.id.slice(-1));
-    likeArr= reorderArray(oldIndex, newIndex, likeArr)
+    let oldIndex = Number(data.slice(-1));
+    let newIndex = Number(ev.target.id.slice(-1));
+    likeArr = newArray(oldIndex, newIndex, likeArr)
     likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
     renderLikeTitle(likeArr);
     likeListContent.querySelectorAll('*').forEach(n => n.remove());
