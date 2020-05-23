@@ -6,3 +6,6 @@ movie list
 * Render home page with 20 movies per page
 * Show movie detail using modal
 * Liked list and drag and drop feature
+
+## Action items
+* Need further improvement on page transition animation effect
