@@ -18,7 +18,8 @@ for (let i = 0; i < 20; i++) {
 }
 movieContainer.insertAdjacentHTML('beforeend',htmlString)
 
-//render movie list function
+//render movie list function and save movieId for each page
+let movieIdArr = [];
 renderList = (data) => {
     for (let i = 0; i < data.results.length; i++) {
         document.getElementById("pageText").innerHTML = `Showing Page <i id = "pageInfo" style="text-decoration: underline;">${data.page}</i> / <i>${data.total_pages}</i> | Items <i>20</i> / <i>${data.total_results}</i>`
@@ -26,10 +27,12 @@ renderList = (data) => {
         document.getElementById(`item-${i}`).alt = `${data.results[i].title}`;
         document.getElementsByClassName(`posterTitle`)[i].innerHTML = `${data.results[i].title}` ;
         document.getElementsByClassName(`posterReleaseDate`)[i].innerHTML = `${data.results[i].release_date}`;
+        movieIdArr.push(data.results[i].id)
     }
 }
-
 // call popular movie API, fetch movie list -- using fetch API
+
+
 getList = () => {
     let path = '/3/movie/popular'
     let language = 'en-US'
@@ -43,6 +46,7 @@ getList();
 let prevBtn = document.getElementById("prev");
 let nextBtn = document.getElementById("next");
 nextBtn.addEventListener("click", () => {
+    movieIdArr.splice(0,20);
     page += 1;
     prevBtn.innerHTML = `&lt;&lt;`;
     prevBtn.disabled = false;
@@ -56,6 +60,7 @@ nextBtn.addEventListener("click", () => {
 } ) 
 
 prevBtn.addEventListener("click", () => {
+    movieIdArr.splice(0,20);
     page -= 1;
     if (page == 1) {
         prevBtn.innerHTML = ``;
@@ -132,11 +137,12 @@ closeFunc = () => {
 }
 
 window.onclick = function(event) {
-    let modal = document.getElementById("Detail");
-    if (event.target == modal) {
-        modal.style.display = `none`;
-        movieContainer.style.filter = ``;
-
+    let modal = document.getElementsByClassName("modal");
+    for (let i=0;i<modal.length;i++) {
+        if (event.target == modal[i]) {
+            modal[i].style.display = `none`;
+            movieContainer.style.filter = ``;
+        }
     }
 };
 
@@ -149,21 +155,6 @@ getDetail = (movieId) => {
        .then(myDetail => renderDetail(myDetail));
 };
 
-// call get popular API to get movie id for clicked movie
-getId = (i) => {
-    let path = '/3/movie/popular'
-    let language = 'en-US'
-    let request = new XMLHttpRequest();
-    request.open(`GET`,`${baseUrl}${path}?api_key=${apiKey}&language=${language}&page=${page}`);
-    request.onload = () => {
-       if (request.readyState == 4 && request.status == 200) {
-           let myList = JSON.parse(request.responseText).results;
-            getDetail(myList[i].id)
-       }
-    };
-    request.send();
-}
-
 // fetch movie detail modal when click specific movie poster
 let poster = document.getElementsByClassName("poster")
 for (let i = 0; i<poster.length; i++) {
@@ -172,7 +163,7 @@ for (let i = 0; i<poster.length; i++) {
         document.getElementById('Detail').style.display = `block`;
         genres.querySelectorAll('*').forEach(n => n.remove());
         production.querySelectorAll('*').forEach(n => n.remove());
-        getId(i);
+        getDetail(movieIdArr[i]);
     })
 }
 
@@ -224,7 +215,7 @@ getLike = (i) => {
            let myList = JSON.parse(request.responseText).results;
            if (likeSet.has(myList[i].id)==false) {
                likeSet.add(myList[i].id);
-               likeObj = {title:myList[i].title, poster_path:myList[i].poster_path, release_date: myList[i].release_date}
+               let likeObj = {title:myList[i].title, poster_path:myList[i].poster_path, release_date: myList[i].release_date}
                likeArr.push(likeObj);
 
                // present like List menu in Navbar
@@ -265,10 +256,10 @@ closeTitlefunc = () => {
 /* 4. order like list title by drag and drop, also show in like list poster*/
 // function of reorder an array
 newArray = (oldIndex, newIndex, oldArray) => {
-    let movedItem = oldArray.find((item, index) => index == oldIndex);
-    let remainingItems = oldArray.filter((item, index) => index !== oldIndex);
+    const movedItem = oldArray.find((item, index) => index == oldIndex);
+    const remainingItems = oldArray.filter((item, index) => index !== oldIndex);
   
-    let newItems = [
+    const newItems = [
         ...remainingItems.slice(0, newIndex),
         movedItem,
         ...remainingItems.slice(newIndex)
@@ -291,12 +282,26 @@ drag = (ev) => {
 drop = (ev) => {
     ev.preventDefault();
     let data = ev.dataTransfer.getData("text");
-    ev.target.appendChild(document.getElementById(data));
-    let oldIndex = Number(data.slice(-1));
-    let newIndex = Number(ev.target.id.slice(-1));
+    let oldIndex = Number(data.split("-")[1]);
+    let newIndex = Number(ev.target.id.split("-")[1]);
     likeArr = newArray(oldIndex, newIndex, likeArr)
     likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
     renderLikeTitle(likeArr);
     likeListContent.querySelectorAll('*').forEach(n => n.remove());
     renderLikePoster(likeArr)
 }
+
+/* 5. loading page*/
+document.onreadystatechange = function() { 
+    if (document.readyState !== "complete") { 
+        document.querySelector( 
+          "body").style.visibility = "hidden"; 
+        document.querySelector( 
+          "#loader").style.visibility = "visible"; 
+    } else { 
+        document.querySelector( 
+          "#loader").style.display = "none"; 
+        document.querySelector( 
+          "body").style.visibility = "visible"; 
+    } 
+}; 

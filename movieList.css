@@ -133,7 +133,7 @@ header a:hover {
     right:0px;
     padding: 40px 20px;
     display: inline-flex;
-    background-color:rgba(0,0,0,0.7);
+    background-color:rgba(0,0,0,0.75);
 }
 
 .close {
@@ -247,7 +247,7 @@ header a:hover {
     top:150px;
     padding-top: 50px;
     clear:right;
-    width:60%;
+    width:70%;
     left:15%;
 }
 
@@ -282,3 +282,28 @@ header a:hover {
     transform: translateX(-200%);
     -webkit-transform: translateX(-200%);
 }
+
+/*loading page*/
+#loader { 
+    border: 12px solid #f3f3f3; 
+    border-radius: 50%; 
+    border-top: 12px solid #444444; 
+    width: 70px; 
+    height: 70px; 
+    animation: spin 1s linear infinite; 
+} 
+  
+@keyframes spin { 
+    100% { 
+        transform: rotate(360deg); 
+    } 
+} 
+  
+.center { 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    left: 0; 
+    right: 0; 
+    margin: auto; 
+} 

@@ -9,3 +9,8 @@ movie list
 
 ## Action items
 * Need further improvement on page transition animation effect
+
+## New Action
+* add loading page
+* fix drag and drop problem
+* more code clean up
