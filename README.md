@@ -14,3 +14,8 @@ movie list
 * add loading page
 * fix drag and drop problem
 * more code clean up
+
+## Further 
+* Style Adjustment
+* More code clean up
+* Reduce API call repeatedly

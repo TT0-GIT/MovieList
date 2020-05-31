@@ -3,53 +3,45 @@ const baseUrl = `https://api.themoviedb.org`;
 let page = 1;
 
 /* 1. movie list main page */
-// htmlString: structure for movielist
+// render movie list func
 let movieContainer = document.getElementById("movieList");
-let htmlString = ``;
-for (let i = 0; i < 20; i++) {
-    htmlString += `<div class= "movie">
-                      <div class = "poster">
-                        <img id = "item-${i}" src="" alt="">
-                        <p><b class="posterTitle"></b></p>
-                        <p class="posterReleaseDate"></p>
-                     </div>
-                  <p class = "top">like it!</p>
-                  </div>`;
-}
-movieContainer.insertAdjacentHTML('beforeend',htmlString)
-
-//render movie list function and save movieId for each page
-let movieIdArr = [];
 renderList = (data) => {
-    for (let i = 0; i < data.results.length; i++) {
+    let popList = data.results;
+    let htmlString = ``;
+    for (let i = 0; i < popList.length; i++) {
         document.getElementById("pageText").innerHTML = `Showing Page <i id = "pageInfo" style="text-decoration: underline;">${data.page}</i> / <i>${data.total_pages}</i> | Items <i>20</i> / <i>${data.total_results}</i>`
-        document.getElementById(`item-${i}`).src = `https://image.tmdb.org/t/p/w500${data.results[i].poster_path}`;
-        document.getElementById(`item-${i}`).alt = `${data.results[i].title}`;
-        document.getElementsByClassName(`posterTitle`)[i].innerHTML = `${data.results[i].title}` ;
-        document.getElementsByClassName(`posterReleaseDate`)[i].innerHTML = `${data.results[i].release_date}`;
-        movieIdArr.push(data.results[i].id)
+        htmlString += `<div class= "movie">
+                          <div class = "poster">
+                            <img onclick = selectMovie(${popList[i].id}) src="https://image.tmdb.org/t/p/w500${popList[i].poster_path}" alt="${popList[i].title}">
+                            <p><b>${popList[i].title}</b></p>
+                            <p>${popList[i].release_date}</p>
+                         </div>
+                      <p id = "${popList[i].id}" class = "top" 
+                         onclick = "selectLike('${popList[i].id}','${popList[i].title.replace("'", "")}','${popList[i].poster_path}','${popList[i].release_date}')" >like it!</p>
+                      </div>`;
     }
+    movieContainer.insertAdjacentHTML('beforeend', htmlString)
 }
+
 // call popular movie API, fetch movie list -- using fetch API
-
-
 getList = () => {
     let path = '/3/movie/popular'
     let language = 'en-US'
     fetch(`${baseUrl}${path}?api_key=${apiKey}&language=${language}&page=${page}`)
-       .then((response) => response.json())
-       .then((movielist) => renderList(movielist))
+        .then((response) => response.json())
+        .then((movielist) => renderList(movielist))
 }
 getList();
+
 
 // nextButton, prevButton
 let prevBtn = document.getElementById("prev");
 let nextBtn = document.getElementById("next");
 nextBtn.addEventListener("click", () => {
-    movieIdArr.splice(0,20);
     page += 1;
     prevBtn.innerHTML = `&lt;&lt;`;
     prevBtn.disabled = false;
+    movieContainer.querySelectorAll('*').forEach(n => n.remove());
     if (page == 500) {
         nextBtn.innerHTML = ``;
         nextBtn.disable = true;
@@ -57,28 +49,30 @@ nextBtn.addEventListener("click", () => {
     } else {
         getList();
     }
-} ) 
+})
 
 prevBtn.addEventListener("click", () => {
-    movieIdArr.splice(0,20);
+    //movieIdArr.splice(0,20);
     page -= 1;
+    movieContainer.querySelectorAll('*').forEach(n => n.remove());
     if (page == 1) {
         prevBtn.innerHTML = ``;
         prevBtn.disabled = true;
-        getList();     
+        getList();
     } else {
         getList();
     }
-} ) 
+})
 
 /* 2. click on poster for each movie's detail info */
 // call genres get movie list API for 19 different movie genres then fetch in movie detail genres matched 
 // with different background color (same genres has same background color) --- using Async ... await call
-let colorArr = ['blue','lightseagreen','lightpink','darkgoldenrod','purple','black',
-                'red','goldenrod','violet','gold','darkgreen','orange','darkmagenta',
-                'pink','silver','lightskyblue','darkred','grey','brown'] // movie genres background color
+let colorArr = ['blue', 'lightseagreen', 'lightpink', 'darkgoldenrod', 'purple', 'black',
+    'red', 'goldenrod', 'violet', 'gold', 'darkgreen', 'orange', 'darkmagenta',
+    'pink', 'silver', 'lightskyblue', 'darkred', 'grey', 'brown'] // movie genres background color
 
-async function getGenres(i) {
+let genresArr = []
+async function getGenres() {
     let path = '/3/genre/movie/list'
     let language = 'en-US'
     const URL = `${baseUrl}${path}?api_key=${apiKey}&language=${language}`;
@@ -87,34 +81,36 @@ async function getGenres(i) {
     if (response.ok) {
         const jsondata = await response.json();
         let genresList = jsondata.genres;
-        let name = genresList[i].name.replace(" ", ""); 
-        let genresColor = {name:name, backColor: colorArr[i]} // match color with genres
-        document.querySelectorAll(`.${genresColor.name}`).forEach(n => n.style.backgroundColor=`${genresColor.backColor}`)
+        for (let i = 0; i<genresList.length;i++) {
+           genresArr.push(genresList[i].name.replace(" ", ""))
+        }
     } else {
         throw Error(response.statusText);
     }
 }
+getGenres()
+
 
 // render movie detail function
 renderDetail = (data) => {
-    document.getElementById('container').style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${data.backdrop_path})` 
-   
+    document.getElementById('container').style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${data.backdrop_path})`
+
     document.getElementById('detailPoster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
     document.getElementById('detailPoster').alt = `"${data.title}"`;
-    
-    document.getElementById('movieTitle').innerHTML = `${data.title} (${data.release_date.slice(0,4)})`;
-    
+
+    document.getElementById('movieTitle').innerHTML = `${data.title} (${data.release_date.slice(0, 4)})`;
+
     // genres and matched background color
     let genres = document.getElementById('genres')
     let genresString = ``;
     for (let i = 0; i < data.genres.length; i++) {
-        genresString += `<div class= "${data.genres[i].name.replace(" ","")}">${data.genres[i].name}</div>`;
+        genresString += `<div class= "${data.genres[i].name.replace(" ", "")}">${data.genres[i].name}</div>`;
     }
-    genres.insertAdjacentHTML('beforeend',genresString);
-    for (let i = 0; i<colorArr.length; i++) {
-        getGenres(i);
+    genres.insertAdjacentHTML('beforeend', genresString);
+    for (let i = 0; i < genresArr.length; i++) {
+        document.querySelectorAll(`.${genresArr[i]}`).forEach(n => n.style.backgroundColor = `${colorArr[i]}`)
     }
-    
+
     document.getElementById('overview').innerHTML = `<span style="font-weight:bold;color:#fff;">Overview:</span> ${data.overview}`;
 
     let pdtString = ``;
@@ -125,7 +121,7 @@ renderDetail = (data) => {
             pdtString += `<span>${data.production_companies[i].name}</span>`
         }
     }
-    production.insertAdjacentHTML('beforeend',pdtString)
+    production.insertAdjacentHTML('beforeend', pdtString)
 
     document.getElementsByClassName("close")[0].innerHTML = "CLOSE";
 }
@@ -136,9 +132,9 @@ closeFunc = () => {
     movieContainer.style.filter = ``;
 }
 
-window.onclick = function(event) {
+window.onclick = function (event) {
     let modal = document.getElementsByClassName("modal");
-    for (let i=0;i<modal.length;i++) {
+    for (let i = 0; i < modal.length; i++) {
         if (event.target == modal[i]) {
             modal[i].style.display = `none`;
             movieContainer.style.filter = ``;
@@ -151,20 +147,17 @@ getDetail = (movieId) => {
     let path = '/3/movie/'
     let language = 'en-US'
     fetch(`${baseUrl}${path}${movieId}?api_key=${apiKey}&language=${language}`)
-       .then((response) => response.json())
-       .then(myDetail => renderDetail(myDetail));
+        .then((response) => response.json())
+        .then(myDetail => renderDetail(myDetail));
 };
 
-// fetch movie detail modal when click specific movie poster
-let poster = document.getElementsByClassName("poster")
-for (let i = 0; i<poster.length; i++) {
-    poster[i].addEventListener("click", () => {
-        movieContainer.style.filter = `blur(8px)`;
-        document.getElementById('Detail').style.display = `block`;
-        genres.querySelectorAll('*').forEach(n => n.remove());
-        production.querySelectorAll('*').forEach(n => n.remove());
-        getDetail(movieIdArr[i]);
-    })
+// function for click poster to show movie detail
+selectMovie = (movieId) => {
+    movieContainer.style.filter = `blur(8px)`;
+    document.getElementById('Detail').style.display = `block`;
+    genres.querySelectorAll('*').forEach(n => n.remove());
+    production.querySelectorAll('*').forEach(n => n.remove());
+    getDetail(movieId);
 }
 
 /* 3. click "like it" to get like list and render like list */
@@ -172,7 +165,7 @@ for (let i = 0; i<poster.length; i++) {
 renderLikeButton = (data) => {
     let likeListButton = document.getElementById("likeListButton");
     document.getElementsByClassName("badge")[0].innerHTML = data.length;
-    document.getElementById("likeListButton").style.display = `block` 
+    document.getElementById("likeListButton").style.display = `block`
 }
 
 // function for render like list poster
@@ -180,14 +173,14 @@ renderLikePoster = (data) => {
     document.getElementById("likeListHeading").innerHTML = `Liked List`;
     document.getElementById("config").innerHTML = `CONFIG`;
     let likeString = ``;
-    for (let i = 0; i <data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         likeString += `<div class = "likePoster">
                           <img src=https://image.tmdb.org/t/p/w500${data[i].poster_path} alt="${data[i].title}" style="height:auto;width:100%;">
                           <p><b>${data[i].title}</b></p>
                           <p>${data[i].release_date}</p>
                        </div>`
     }
-    likeListContent.insertAdjacentHTML('beforeend',likeString)
+    likeListContent.insertAdjacentHTML('beforeend', likeString)
 }
 
 // function for render like list title
@@ -199,47 +192,29 @@ renderLikeTitle = (data) => {
                                  <p id = "like-${i}" draggable="true" ondragstart="drag(event)">${data[i].title}</p>
                             </div>`
     }
-    likeListTitleContent.insertAdjacentHTML('beforeend',likeTitleString)
+    likeListTitleContent.insertAdjacentHTML('beforeend', likeTitleString)
 }
 
-// call get popular API to get like list info (title poster and release date)
+// function for click "like it" to load likelist 
 let likeArr = [];
 let likeSet = new Set();
-getLike = (i) => {
-    let path = '/3/movie/popular'
-    let language = 'en-US'
-    let request = new XMLHttpRequest();
-    request.open(`GET`,`${baseUrl}${path}?api_key=${apiKey}&language=${language}&page=${page}`);
-    request.onload = () => {
-       if (request.readyState == 4 && request.status == 200) {
-           let myList = JSON.parse(request.responseText).results;
-           if (likeSet.has(myList[i].id)==false) {
-               likeSet.add(myList[i].id);
-               let likeObj = {title:myList[i].title, poster_path:myList[i].poster_path, release_date: myList[i].release_date}
-               likeArr.push(likeObj);
+selectLike = (movieId, title, poster_path, release_date) => {
+    if (likeSet.has(movieId) == false) {
+        likeSet.add(movieId);
+        let likeObj = { title: title, poster_path: poster_path, release_date: release_date }
+        likeArr.push(likeObj);
 
-               // present like List menu in Navbar
-               renderLikeButton(likeArr);    
-               
-               // poster of like list
-               likeListContent.querySelectorAll('*').forEach(n => n.remove());
-               renderLikePoster(likeArr);
+        // present like List menu in Navbar
+        renderLikeButton(likeArr);
 
-               // title of like list after click config
-               likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
-               renderLikeTitle(likeArr);
-            }
-        }
+        // poster of like list
+        likeListContent.querySelectorAll('*').forEach(n => n.remove());
+        renderLikePoster(likeArr);
+
+        // title of like list after click config
+        likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
+        renderLikeTitle(likeArr);
     }
-    request.send();
-}
-
-// present like List menu in Navbar load like list page when click "like it" 
-let likeIt = document.getElementsByClassName("top")
-for (let i = 0; i<likeIt.length; i++) {
-    likeIt[i].addEventListener("click", () => {
-        getLike(i);
-    })
 }
 
 // function for click config to show like list title
@@ -258,13 +233,13 @@ closeTitlefunc = () => {
 newArray = (oldIndex, newIndex, oldArray) => {
     const movedItem = oldArray.find((item, index) => index == oldIndex);
     const remainingItems = oldArray.filter((item, index) => index !== oldIndex);
-  
+
     const newItems = [
         ...remainingItems.slice(0, newIndex),
         movedItem,
         ...remainingItems.slice(newIndex)
     ];
-  
+
     return newItems;
 }
 
@@ -275,7 +250,7 @@ allowDrop = (ev) => {
 
 // drag func  
 drag = (ev) => {
-    ev.dataTransfer.setData("text", ev.target.id);   
+    ev.dataTransfer.setData("text", ev.target.id);
 }
 
 // drop func
@@ -292,16 +267,16 @@ drop = (ev) => {
 }
 
 /* 5. loading page*/
-document.onreadystatechange = function() { 
-    if (document.readyState !== "complete") { 
-        document.querySelector( 
-          "body").style.visibility = "hidden"; 
-        document.querySelector( 
-          "#loader").style.visibility = "visible"; 
-    } else { 
-        document.querySelector( 
-          "#loader").style.display = "none"; 
-        document.querySelector( 
-          "body").style.visibility = "visible"; 
-    } 
+document.onreadystatechange = function () {
+    if (document.readyState !== "complete") {
+        document.querySelector(
+            "body").style.visibility = "hidden";
+        document.querySelector(
+            "#loader").style.visibility = "visible";
+    } else {
+        document.querySelector(
+            "#loader").style.display = "none";
+        document.querySelector(
+            "body").style.visibility = "visible";
+    }
 }; 

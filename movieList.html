@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,63 +9,69 @@
     <link rel="stylesheet" type="text/css" href="movieList.css">
 
 </head>
+
 <body>
-    <div id="loader" class="center"></div> 
-    <div id = "showMovieList">
-        <div id = "showLikeList">
+    <div id="loader" class="center"></div>
+    <div id="showMovieList">
+        <div id="showLikeList">
             <header>
-                <img src = "image/movie_db_logo.svg" style="height:40px; width:auto">
-                <a href = "#showMovieList" id = "movieListButton">Movie List</a>
-                <a href = "#showLikeList" id = "likeListButton">Like List <sup class = "badge" style="font-size:smaller;color:white;background-color:red;border-radius:5px;padding:2px;"></sup></a>
+                <img src="image/movie_db_logo.svg" style="height:40px; width:auto">
+                <a href="#showMovieList" id="movieListButton">Movie List</a>
+                <a href="#showLikeList" id="likeListButton">Like List <sup class="badge"
+                        style="font-size:smaller;color:white;background-color:red;border-radius:5px;padding:2px;"></sup></a>
             </header>
-        
+
             <hr>
-            
-            <div id = "mainPage">
-                <div id = "pagination">
-                    <button id = "prev" disabled></button>
-                    <div id = "pageText"></div>
-                    <button id = "next">&gt;&gt;</button>
+
+            <div id="mainPage">
+                <h1>The Most Popular Movies</h1>
+
+                <div id="pagination">
+                    <button id="prev" disabled></button>
+                    <div id="pageText"></div>
+                    <button id="next">&gt;&gt;</button>
                 </div>
-            
-                <div id = "movieList"></div>
+
+                <div id="movieList"></div>
             </div>
-            
-            
-           <div id = "Detail" class = "modal">
-               <div id="container" >
-                   <div class = "content">
-                       <div  style = "width:35%;">
-                           <img id = "detailPoster" src = "" alt = "" style="width:100%;height:auto">
-                       </div>
-                       <div id = "movieInfo" style = "width:55%;">
-                           <h1 id = "movieTitle"></h1>
-                           <div id = "genres"></div>
-                           <p id = "overview"></p> 
-                           <div id = "production"></div>
-                       </div>
-                       <div style = "width:10%;">
-                           <span class="close" onclick = "closeFunc()"></span>
-                       </div>
-                   </div>
+
+
+            <div id="Detail" class="modal">
+                <div id="container">
+                    <div class="content">
+                        <div style="width:35%;">
+                            <img id="detailPoster" src="" alt="" style="width:100%;height:auto">
+                        </div>
+                        <div id="movieInfo" style="width:55%;">
+                            <h2 id="movieTitle"></h2>
+                            <div id="genres"></div>
+                            <p id="overview"></p>
+                            <div id="production"></div>
+                        </div>
+                        <div style="width:10%;">
+                            <span class="close" onclick="closeFunc()"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        
-            <div id = "likeList">
-                <div id = "likeListHeader">
-                    <h2 id = "likeListHeading"></h2>
-                    <div id = "config" onclick = configFunc()></div>
+
+            <div id="likeList">
+                <div id="likeListHeader">
+                    <h2 id="likeListHeading"></h2>
+                    <div id="config" onclick=configFunc()></div>
                 </div>
-                <div id = "likeListContent"></div>
+                <div id="likeListContent"></div>
             </div>
-        
-            <div id = "likeListTitle" class = "modal">
-                <img id = "closeLikeListTitle" onclick = closeTitlefunc() src = "image/close_icon.png" style = "height: 50px; width: auto;">
-                <div id = "likeListTitleContent" ></div>
+
+            <div id="likeListTitle" class="modal">
+                <img id="closeLikeListTitle" onclick=closeTitlefunc() src="image/close_icon.png"
+                    style="height: 50px; width: auto;">
+                <div id="likeListTitleContent"></div>
             </div>
         </div>
-    </div> 
+    </div>
 
-    <script src = 'movieList.js'></script>
+    <script src='movieList.js'></script>
 </body>
+
 </html>

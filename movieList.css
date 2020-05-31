@@ -6,6 +6,8 @@
 html body {
     background-color: #141414;
     color: #fff;
+    margin-left: 10%;
+    margin-right:10%;
 }
 
 header {
@@ -56,6 +58,7 @@ header a:hover {
 }
 
 #movieList {
+
     display: flex;
     flex-wrap: wrap;
  }
@@ -67,7 +70,7 @@ header a:hover {
     padding:10px;
  }
 
-[id*="item-"] {
+.poster img {
      width:100%;
      height:auto;
  }
@@ -81,8 +84,8 @@ header a:hover {
      margin:0;
      top: 10px;
      left:10px;
-     width:100%;
-     transition: 1s;
+     width:95%;
+     transition: 0.5s;
 }
   
 .top {
@@ -113,6 +116,7 @@ header a:hover {
     width: 100%; 
     height: 100%; 
     background-color:rgba(0,0,0,0.5);
+    overflow-y: scroll;
 }
 
 #container {
@@ -127,10 +131,6 @@ header a:hover {
     color: seashell ;
     height:100%;
     width:100%;
-    top:0px;
-    bottom: 0px;
-    left:0px;
-    right:0px;
     padding: 40px 20px;
     display: inline-flex;
     background-color:rgba(0,0,0,0.75);
@@ -149,12 +149,7 @@ header a:hover {
 
 .content>div {
     height:100%;
-    top:0px;
-    bottom: 0px;
-    left:0px;
-    right:0px;
     padding:20px 40px;
-
 }
 
 #genres {
@@ -190,6 +185,8 @@ header a:hover {
 }
 
 #likeListHeader {
+    margin-left: 10%;
+    margin-right: 10%;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
@@ -212,6 +209,8 @@ header a:hover {
 #likeListContent {
     display: flex;
     flex-wrap: wrap;
+    margin-left: 10%;
+    margin-right: 10%;
 }
 
 #likeListContent p {
@@ -235,7 +234,7 @@ header a:hover {
 #closeLikeListTitle {
     float: right;
     padding-top: 10px;
-    padding-right: 40px;
+    padding-right: 10%;
 }
 
 #closeLikeListTitle:hover {
@@ -247,8 +246,8 @@ header a:hover {
     top:150px;
     padding-top: 50px;
     clear:right;
-    width:70%;
-    left:15%;
+    width:50%;
+    left:25%;
 }
 
 #likeListTitleContent p {
@@ -262,15 +261,13 @@ header a:hover {
 /*the following style for likelist and mainlist transition*/
 #mainPage,#likeList {
     transition: all .6s cubic-bezier(.5, .2, .2, 1.1);
-    -webkit-transition: all .6s cubic-bezier(.5, .2, .2, 1.1);
+    -webkit-transition: all .5s cubic-bezier(.5, .2, .2, 1.1);
 }
 
 #mainPage,#likeList {
     position:absolute;
-}
-
-#mainPage {
-    left:0;
+    left:10%;
+    right:10%;
 }
 
 #likeList {
