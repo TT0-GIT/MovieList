@@ -1,6 +1,8 @@
 const apiKey = `767a17491866d99d6e9e4da2bd8f8507`;
 const baseUrl = `https://api.themoviedb.org`;
 let page = 1;
+let likeArr = [];
+let likeId = [];
 
 /* 1. movie list main page */
 // render movie list func
@@ -10,15 +12,26 @@ renderList = (data) => {
     let htmlString = ``;
     for (let i = 0; i < popList.length; i++) {
         document.getElementById("pageText").innerHTML = `Showing Page <i id = "pageInfo" style="text-decoration: underline;">${data.page}</i> / <i>${data.total_pages}</i> | Items <i>20</i> / <i>${data.total_results}</i>`
-        htmlString += `<div class= "movie">
-                          <div class = "poster">
-                            <img onclick = selectMovie(${popList[i].id}) src="https://image.tmdb.org/t/p/w500${popList[i].poster_path}" alt="${popList[i].title}">
-                            <p><b>${popList[i].title}</b></p>
-                            <p>${popList[i].release_date}</p>
-                         </div>
-                      <p id = "${popList[i].id}" class = "top" 
-                         onclick = "selectLike('${popList[i].id}','${popList[i].title.replace("'", "")}','${popList[i].poster_path}','${popList[i].release_date}')" >like it!</p>
-                      </div>`;
+        if (likeId.find((item) => item == `${popList[i].id}` )) {
+            htmlString += `<div class= "movie">
+                              <div class = "poster">
+                                 <img onclick = selectMovie(${popList[i].id}) src="https://image.tmdb.org/t/p/w500${popList[i].poster_path}" alt="${popList[i].title}">
+                                 <p><b>${popList[i].title}</b></p>
+                                 <p>${popList[i].release_date}</p>
+                              </div>
+                              <button id = "${popList[i].id}" class = "top" disabled style="color:grey">liked</button>
+                          </div>`;
+        } else {
+            htmlString += `<div class= "movie">
+                              <div class = "poster">
+                                 <img onclick = selectMovie(${popList[i].id}) src="https://image.tmdb.org/t/p/w500${popList[i].poster_path}" alt="${popList[i].title}">
+                                 <p><b>${popList[i].title}</b></p>
+                                 <p>${popList[i].release_date}</p>
+                              </div>
+                              <button id = "${popList[i].id}" class = "top" 
+                              onclick = "selectLike('${popList[i].id}','${popList[i].title.replace("'", "")}','${popList[i].poster_path}','${popList[i].release_date}')">like it!</button> 
+                           </div>`;
+        }
     }
     movieContainer.insertAdjacentHTML('beforeend', htmlString)
 }
@@ -81,8 +94,8 @@ async function getGenres() {
     if (response.ok) {
         const jsondata = await response.json();
         let genresList = jsondata.genres;
-        for (let i = 0; i<genresList.length;i++) {
-           genresArr.push(genresList[i].name.replace(" ", ""))
+        for (let i = 0; i < genresList.length; i++) {
+            genresArr.push(genresList[i].name.replace(" ", ""))
         }
     } else {
         throw Error(response.statusText);
@@ -189,20 +202,22 @@ renderLikeTitle = (data) => {
     let likeTitleString = ``;
     for (let i = 0; i < data.length; i++) {
         likeTitleString += `<div id = "divlike-${i}" ondrop="drop(event)" ondragover="allowDrop(event)">
-                                 <p id = "like-${i}" draggable="true" ondragstart="drag(event)">${data[i].title}</p>
+                                 <p id = "like-${i}" draggable="true" ondragstart="drag(event)">${data[i].title}
+                                 <span class="delete" onclick = likeRemove(${i})>&times;</span>
+                                 </p>
                             </div>`
     }
     likeListTitleContent.insertAdjacentHTML('beforeend', likeTitleString)
 }
 
 // function for click "like it" to load likelist 
-let likeArr = [];
-let likeSet = new Set();
 selectLike = (movieId, title, poster_path, release_date) => {
-    if (likeSet.has(movieId) == false) {
-        likeSet.add(movieId);
-        let likeObj = { title: title, poster_path: poster_path, release_date: release_date }
+    // if (likeSet.has(movieId) == false) {
+    //     likeSet.add(movieId);
+        let likeObj = { id:movieId, title: title, poster_path: poster_path, release_date: release_date }
         likeArr.push(likeObj);
+        likeId.push(movieId)
+        console.log(likeId)
 
         // present like List menu in Navbar
         renderLikeButton(likeArr);
@@ -214,8 +229,36 @@ selectLike = (movieId, title, poster_path, release_date) => {
         // title of like list after click config
         likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
         renderLikeTitle(likeArr);
-    }
+
+        document.getElementById(movieId).innerHTML = `liked`;
+        document.getElementById(movieId).style.color = `grey`;
+        document.getElementById(movieId).disabled = true;
+
+    // }
 }
+
+likeRemove = (index) => {
+    let removedItem = likeArr.splice(index,1);
+    let removedId = likeId.splice(index,1);
+
+    (likeArr.length>0) ?
+    renderLikeButton(likeArr):
+    (document.getElementById("likeListButton").style.display = `none`)
+
+    // poster of like list
+    likeListContent.querySelectorAll('*').forEach(n => n.remove());
+    renderLikePoster(likeArr);
+
+    // title of like list after click config
+    likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
+    renderLikeTitle(likeArr);
+}
+
+let movieListButton = document.getElementById("movieListButton");
+movieListButton.addEventListener("click",() => {
+    movieContainer.querySelectorAll('*').forEach(n => n.remove());
+    getList();
+})
 
 // function for click config to show like list title
 let likeListTitle = document.getElementById("likeListTitle");
@@ -260,6 +303,7 @@ drop = (ev) => {
     let oldIndex = Number(data.split("-")[1]);
     let newIndex = Number(ev.target.id.split("-")[1]);
     likeArr = newArray(oldIndex, newIndex, likeArr)
+    likeId = newArray(oldIndex, newIndex, likeId) 
     likeListTitleContent.querySelectorAll('*').forEach(n => n.remove());
     renderLikeTitle(likeArr);
     likeListContent.querySelectorAll('*').forEach(n => n.remove());

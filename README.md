@@ -15,7 +15,11 @@ movie list
 * fix drag and drop problem
 * more code clean up
 
-## Further 
+## New Action 
 * Style Adjustment
 * More code clean up
 * Reduce API call repeatedly
+
+## New Action
+* Add likeList delete feature
+

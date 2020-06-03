@@ -99,6 +99,7 @@ header a:hover {
     color:red;
     background-color: rgba(0,0,0,0.75);
     transition: 1s;
+    border:0px;
  }
 
 .top:hover {
@@ -229,6 +230,20 @@ header a:hover {
     background-color: rgba(0,0,0,0.5);
     color:white;
     overflow: scroll;
+}
+
+.delete {
+    float:right;
+    font-size: 20px;
+    padding-right: 5px;
+}
+
+.delete:hover,
+.delete:focus {
+    color: #ddd;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 25px;
 }
 
 #closeLikeListTitle {
